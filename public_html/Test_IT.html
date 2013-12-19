@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html>
+   <head>
+      <title>Testing TelemeeJS</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width">
+      <script src="js/libs/jquery/jquery.js"></script>
+      <script src="js/TelemeeJS.js"></script>
+
+      <script>
+         function rand(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+         }
+
+         var testApp01 = "Testapp 01";
+         var testApp02 = "Testapp 02";
+         var testChannel01 = "Testchannel 01";
+         var testChannel02 = "Testchannel 02";
+         var testChannel03 = "Testchannel 03";
+         var testChannelAttributeX = "X";
+         var testChannelAttributeY = "Y";
+         var testChannelAttributeZ = "Z";
+         var testChannelAttributeGroup = "Group";
+
+         function testSuite() {
+            clearData();
+            testNoData();
+            testCreateTelemeeApp();
+            testCreateChannel();
+            testCreateLogEntry();
+            testDeleteChannelAttribute();
+            testDeleteChannel();
+            testDeleteApp();
+         }
+
+         function clearData() {
+            TelemeeJS.deleteChannel(testChannel01);
+            TelemeeJS.deleteChannel(testChannel02);
+
+            TelemeeJS.deleteLogEntries(testChannel01);
+            TelemeeJS.deleteLogEntries(testChannel02);
+
+            TelemeeJS.deleteTelemeeApp(testApp01);
+            TelemeeJS.deleteTelemeeApp(testApp02);
+
+            TelemeeJS.deleteChannelAttribute(testChannelAttributeX);
+            TelemeeJS.deleteChannelAttribute(testChannelAttributeY);
+            TelemeeJS.deleteChannelAttribute(testChannelAttributeZ);
+            TelemeeJS.deleteChannelAttribute(testChannelAttributeGroup);
+         }
+
+         function testNoData() {
+            var expected;
+            var actual;
+
+            expected = 0;
+            actual = TelemeeJS.getTelemeeApps().length;
+            assertEquals(expected, actual, "testNoData() telemeeApps");
+
+            actual = TelemeeJS.getChannels().length;
+            assertEquals(expected, actual, "testNoData() channels");
+
+            actual = TelemeeJS.getChannelAttributes().length;
+            assertEquals(expected, actual, "testNoData() channelAttributes");
+         }
+
+         function testCreateTelemeeApp() {
+            var expected;
+            var actual;
+
+            expected = TelemeeJS.getTelemeeApps().length + 1;
+            TelemeeJS.forTelemeeApp(testApp01).send();
+            actual = TelemeeJS.getTelemeeApps().length;
+            assertEquals(expected, actual, "testCreateTelemeeApp() forTelemeeApp");
+
+            actual = testApp01.id;
+            assertGreater(-1, actual, "testCreateTelemeeApp() id");
+         }
+
+         function testCreateChannel() {
+            var expected;
+            var actual;
+
+            expected = TelemeeJS.getChannels().length + 1;
+            TelemeeJS.forChannel(testChannel01).send();
+            actual = TelemeeJS.getChannels().length;
+            assertEquals(expected, actual, "testCreateChannel() forChannel");
+
+            actual = testChannel01.id;
+            assertGreater(-1, actual, "testCreateChannel() id");
+         }
+
+         function testCreateChannelAttribute() {
+            var expected;
+            var actual;
+
+            expected = TelemeeJS.getChannelAttributes().length + 1;
+            TelemeeJS.forChannelAttribute(testChannelAttributeX).send();
+            actual = TelemeeJS.getChannelAttributes().length;
+            assertEquals(expected, actual, "testCreateChannelAttribute() forChannelAttribute");
+
+            actual = testChannelAttributeX.id;
+            assertGreater(-1, actual, "testCreateChannelAttribute() id");
+         }
+
+         function testCreateLogEntry() {
+            var expected;
+            var actual;
+            var countCreate = 10;
+
+            var channel = TelemeeJS.getChannels()[0];
+            expected = TelemeeJS.getLogEntries(channel).length + countCreate;
+
+            TelemeeJS.forTelemeeApp(testApp01)
+                    .forChannel(channel.name);
+            for (var i = 0; i < countCreate; i++) {
+               TelemeeJS.startLogEntry()
+                       .forChannelAttribute(testChannelAttributeX)
+                       .log(456)
+                       .forChannelAttribute(testChannelAttributeY)
+                       .log(123)
+                       .endLogEntry();
+            }
+            TelemeeJS.send();
+
+            actual = TelemeeJS.getLogEntries(channel).length;
+
+            assertEquals(expected, actual, "testCreateLogEntry()");
+         }
+
+         function testDeleteChannelAttribute() {
+            var expected;
+            var actual;
+
+            expected = TelemeeJS.getChannelAttributes().length - 1;
+            TelemeeJS.deleteChannel(testChannelAttributeX);
+            actual = TelemeeJS.getChannels().length;
+
+            assertEquals(expected, actual, "testDeleteChannelAttribute()");
+         }
+
+         function testDeleteChannel() {
+            var expected;
+            var actual;
+
+            TelemeeJS.forTelemeeApp(testApp02)
+                    .forChannel(testChannel02)
+                    .send();
+
+            expected = TelemeeJS.getChannels().length - 1;
+            TelemeeJS.deleteChannel(testChannel02);
+            actual = TelemeeJS.getChannels().length;
+
+            assertEquals(expected, actual, "testDeleteChannel()");
+         }
+
+         function testDeleteApp() {
+            var expected;
+            var actual;
+
+            TelemeeJS.forTelemeeApp(testApp02)
+                    .forChannel(testChannel02)
+                    .send();
+
+            expected = TelemeeJS.getTelemeeApps().length - 1;
+            TelemeeJS.deleteTelemeeApp(testApp02);
+            actual = TelemeeJS.getTelemeeApps().length;
+
+            assertEquals(expected, actual, "testDeleteApp()");
+         }
+
+         function createTestDataForClient() {
+            TelemeeJS.forTelemeeApp(testApp01)
+                    .forChannel(testChannel01)
+                    .send();
+
+            TelemeeJS.startLogEntry()
+                    .forChannelAttribute(testChannelAttributeX)
+                    .log(Date.now())
+                    .forChannelAttribute(testChannelAttributeY)
+                    .log(rand(0, 1000))
+                    .forChannelAttribute(testChannelAttributeZ)
+                    .log(rand(0, 1000))
+                    .forChannelAttribute(testChannelAttributeGroup)
+                    .log("Group 01")
+                    .endLogEntry()
+                    .send();
+            TelemeeJS.startLogEntry()
+                    .forChannelAttribute(testChannelAttributeX)
+                    .log(Date.now())
+                    .forChannelAttribute(testChannelAttributeY)
+                    .log(rand(0, 1000))
+                    .forChannelAttribute(testChannelAttributeZ)
+                    .log(rand(0, 1000))
+                    .forChannelAttribute(testChannelAttributeGroup)
+                    .log("Group 02")
+                    .endLogEntry()
+                    .send();
+
+            TelemeeJS.forTelemeeApp(testApp02)
+                    .forChannel(testChannel02)
+                    .send();
+
+            TelemeeJS.startLogEntry()
+                    .forChannelAttribute(testChannelAttributeX)
+                    .log(Date.now())
+                    .forChannelAttribute(testChannelAttributeY)
+                    .log(rand(0, 1000))
+                    .forChannelAttribute(testChannelAttributeZ)
+                    .log(rand(0, 1000))
+                    .forChannelAttribute(testChannelAttributeGroup)
+                    .log("Group 02A")
+                    .endLogEntry()
+                    .send();
+            TelemeeJS.startLogEntry()
+                    .forChannelAttribute(testChannelAttributeX)
+                    .log(Date.now())
+                    .forChannelAttribute(testChannelAttributeY)
+                    .log(rand(0, 1000))
+                    .forChannelAttribute(testChannelAttributeZ)
+                    .log(rand(0, 1000))
+                    .forChannelAttribute(testChannelAttributeGroup)
+                    .log("Group 02B")
+                    .endLogEntry()
+                    .send();
+         }
+
+         function assertEquals(expected, actual, message) {
+            window.console.log("Running test '" + message + "'");
+            if (expected !== actual) {
+               window.console.error("\tFAILURE - Expected '" + expected + "' but actual is '" + actual + "'");
+            } else {
+               window.console.log("\tSUCCESS");
+            }
+         }
+
+         function assertGreater(value, actual, message) {
+            window.console.log("Running test '" + message + "'");
+            if (value >= actual) {
+               window.console.error("\tFAILURE - Expected that '" + actual + "' is greater than '" + value + "'");
+            } else {
+               window.console.log("\tSUCCESS");
+            }
+         }
+
+      </script>
+   </head>
+   <body>
+      <h3>Simple Integrationtest for TelemeeJS</h3>
+      Please inspect console. <br/>
+      <button onclick="testSuite()">Run tests</button>
+      <br/>
+      <button onclick="createTestDataForClient()">create testdata for client</button>
+   </body>
+</html>
