@@ -24,6 +24,7 @@
          var testChannelAttributeGroup = "Group";
 
          function testSuite() {
+            TelemeeJS.logLevel = TelemeeJS.INFO;
             clearData();
             testNoData();
             testCreateTelemeeApp();
@@ -115,7 +116,7 @@
             TelemeeJS.forTelemeeApp(testApp01)
                     .forChannel(channel.name);
             for (var i = 0; i < countCreate; i++) {
-               TelemeeJS.startLogEntry()
+               TelemeeJS.startLogEntry("Testlogentry", TelemeeJS.INFO)
                        .forChannelAttribute(testChannelAttributeX)
                        .log(456)
                        .forChannelAttribute(testChannelAttributeY)
@@ -171,11 +172,13 @@
          }
 
          function createTestDataForClient() {
+            TelemeeJS.logLevel = TelemeeJS.INFO;
+
             TelemeeJS.forTelemeeApp(testApp01)
                     .forChannel(testChannel01)
                     .send();
 
-            TelemeeJS.startLogEntry()
+            TelemeeJS.startLogEntry("Testlogentry Group 01", TelemeeJS.INFO)
                     .forChannelAttribute(testChannelAttributeX)
                     .log(Date.now())
                     .forChannelAttribute(testChannelAttributeY)
@@ -186,7 +189,7 @@
                     .log("Group 01")
                     .endLogEntry()
                     .send();
-            TelemeeJS.startLogEntry()
+            TelemeeJS.startLogEntry("Testlogentry Group 02", TelemeeJS.FINE)
                     .forChannelAttribute(testChannelAttributeX)
                     .log(Date.now())
                     .forChannelAttribute(testChannelAttributeY)
@@ -202,7 +205,7 @@
                     .forChannel(testChannel02)
                     .send();
 
-            TelemeeJS.startLogEntry()
+            TelemeeJS.startLogEntry("Testlogentry Group 02A", TelemeeJS.INFO)
                     .forChannelAttribute(testChannelAttributeX)
                     .log(Date.now())
                     .forChannelAttribute(testChannelAttributeY)
@@ -213,7 +216,7 @@
                     .log("Group 02A")
                     .endLogEntry()
                     .send();
-            TelemeeJS.startLogEntry()
+            TelemeeJS.startLogEntry("Testlogentry Group 02B", TelemeeJS.INFO)
                     .forChannelAttribute(testChannelAttributeX)
                     .log(Date.now())
                     .forChannelAttribute(testChannelAttributeY)

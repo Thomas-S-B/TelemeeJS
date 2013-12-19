@@ -23,6 +23,17 @@
 var TelemeeJS = (function(serverURI) {
    var DEFAULT_BASE_URI = 'http://localhost:8080/';
    var baseURI;
+
+   var logLevel;
+   var OFF = 999;
+   var SEVERE = 600;
+   var WARNING = 500;
+   var INFO = 400;
+   var FINE = 300;
+   var FINER = 200;
+   var FINEST = 100;
+   var ALL = 0;
+
    var currentApp;
    var currentChannel;
    var currentChannelAttribute;
@@ -274,22 +285,26 @@ var TelemeeJS = (function(serverURI) {
 
    function createLogEntry(newLogEntry) {
       var deferredCreateLogEntry = $.Deferred();
-      var telemeeAPI = baseURI + 'telemee/resources/logentries';
-      $.ajax({
-         type: "POST",
-         async: false,
-         url: telemeeAPI,
-         contentType: "application/json; charset=utf-8",
-         dataType: "application/json",
-         data: JSON.stringify(newLogEntry, newLogEntry.getFilteredFields()),
-         statusCode: {
-            201: function(data) {
-               var jsonNewLogEntry = JSON.parse(data.responseText);
-               newLogEntry.id = jsonNewLogEntry.id;
-               deferredCreateLogEntry.resolve(newLogEntry);
+      if (newLogEntry.logLevel < TelemeeJS.logLevel) {
+         deferredCreateLogEntry.resolve(newLogEntry);
+      } else {
+         var telemeeAPI = baseURI + 'telemee/resources/logentries';
+         $.ajax({
+            type: "POST",
+            async: false,
+            url: telemeeAPI,
+            contentType: "application/json; charset=utf-8",
+            dataType: "application/json",
+            data: JSON.stringify(newLogEntry, newLogEntry.getFilteredFields()),
+            statusCode: {
+               201: function(data) {
+                  var jsonNewLogEntry = JSON.parse(data.responseText);
+                  newLogEntry.id = jsonNewLogEntry.id;
+                  deferredCreateLogEntry.resolve(newLogEntry);
+               }
             }
-         }
-      });
+         });
+      }
       return deferredCreateLogEntry.promise();
    }
 
@@ -355,8 +370,9 @@ var TelemeeJS = (function(serverURI) {
 //#####################################################################
 // LogEntry Entity
 //#####################################################################
-   var LogEntry = function(description, channel) {
+   var LogEntry = function(description, channel, level) {
       this.id = -1;
+      this.logLevel = level;
       this.description = description;
       this.channel = channel;
       this.channelID;
@@ -440,8 +456,8 @@ var TelemeeJS = (function(serverURI) {
       return this;
    }
 
-   function startLogEntry(description) {
-      var newLogEntry = new LogEntry(description, currentChannel);
+   function startLogEntry(description, level) {
+      var newLogEntry = new LogEntry(description, currentChannel, level);
       currentLogEntry = newLogEntry;
       return this;
    }
@@ -757,6 +773,16 @@ var TelemeeJS = (function(serverURI) {
       deleteTelemeeApp: deleteTelemeeApp,
       deleteChannel: deleteChannel,
       deleteChannelAttribute: deleteChannelAttribute,
-      deleteLogEntries: deleteLogEntries
+      deleteLogEntries: deleteLogEntries,
+      baseURI: baseURI,
+      logLevel: logLevel,
+      OFF: OFF,
+      SEVERE: SEVERE,
+      WARNING: WARNING,
+      INFO: INFO,
+      FINE: FINE,
+      FINER: FINER,
+      FINEST: FINEST,
+      ALL: ALL
    };
 })();
