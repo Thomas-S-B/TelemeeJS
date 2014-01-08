@@ -581,11 +581,11 @@ var TelemeeJS = (function(serverURI) {
                url: telemeeAPI,
                contentType: "application/json; charset=utf-8",
                success: function(data) {
-                  // todo  prüfen - muss irgendwas gelöscht werden?
+                  // todo  should something deleted?
                }
             });
          } else {
-            // todo  prüfen - muss irgendwas gelöscht werden?
+            // todo  should something deleted?
          }
       }
    }

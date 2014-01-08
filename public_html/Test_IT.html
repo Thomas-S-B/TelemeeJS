@@ -29,6 +29,7 @@
             testNoData();
             testCreateTelemeeApp();
             testCreateChannel();
+            testCreateChannelAttribute();
             testCreateLogEntry();
             testDeleteChannelAttribute();
             testDeleteChannel();
@@ -135,8 +136,8 @@
             var actual;
 
             expected = TelemeeJS.getChannelAttributes().length - 1;
-            TelemeeJS.deleteChannel(testChannelAttributeX);
-            actual = TelemeeJS.getChannels().length;
+            TelemeeJS.deleteChannelAttribute(testChannelAttributeX);
+            actual = TelemeeJS.getChannelAttributes().length;
 
             assertEquals(expected, actual, "testDeleteChannelAttribute()");
          }
